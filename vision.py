@@ -21,7 +21,7 @@ def threshold():
 
     print("Press Q to quit")
 
-    lower_limit_threshold = np.array([0, 100, 120])
+    lower_limit_threshold = np.array([5, 100, 120])
     upper_limit_threshold = np.array([77, 255, 231])
     while True:
         # Capture frame-by-frame
@@ -74,3 +74,27 @@ def threshold():
 
 
 threshold()
+
+
+# from picamera.array import PiRGBArray
+# from picamera import PiCamera
+# import time
+# import cv2
+
+# # initialize the camera and grab a reference to the raw camera capture
+# camera = PiCamera()
+# rawCapture = PiRGBArray(camera)
+
+# # allow the camera to warmup
+# time.sleep(2)
+
+# # grab an image from the camera
+# camera.capture(rawCapture, format="bgr")
+# image = rawCapture.array
+
+# # Convert to a normal RGB space
+# im = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+# # display the image on screen and wait for a keypress
+# cv2.imshow("Image", im)
+# cv2.waitKey(0)

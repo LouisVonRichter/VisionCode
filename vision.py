@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
-import RPi.GPIO as GPIO
+
+# import RPi.GPIO as GPIO
 import time
 
 # Note: OpenCV uses BGR color space rather than RGB
@@ -20,6 +21,8 @@ def threshold():
 
     print("Press Q to quit")
 
+    lower_limit_threshold = np.array([0, 100, 120])
+    upper_limit_threshold = np.array([77, 255, 231])
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
@@ -31,11 +34,35 @@ def threshold():
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         mask = cv2.inRange(
-            frame, (0, 125, 125), (80, 255, 255)
-        )  # Set to stanley yellow
+            frame, lower_limit_threshold, upper_limit_threshold
+        )  # Set to yellow
         mask_rgb = cv2.cvtColor(mask, cv2.COLOR_GRAY2RGB)
 
         frame = frame & mask_rgb
+
+        # find contours
+        contours, hierarchy = cv2.findContours(
+            mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
+        )
+
+        # draw one box around the biggest contour
+        if len(contours) > 0:
+            c = max(contours, key=cv2.contourArea)
+            x, y, w, h = cv2.boundingRect(c)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # place circle in centre of box
+            cv2.circle(frame, (x + int(w / 2), y + int(h / 2)), 5, (0, 0, 255), -1)
+
+            # display the coordinates of the centre of the box
+            cv2.putText(
+                frame,
+                "x: " + str(x + int(w / 2)) + " y: " + str(y + int(h / 2)),
+                (x + int(w / 2), y + int(h / 2)),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.5,
+                (0, 0, 255),
+                2,
+            )
         cv2.imshow("Threshold", frame)
 
         if cv2.waitKey(1) & 0xFF == ord("q"):

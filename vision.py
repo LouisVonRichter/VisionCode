@@ -5,7 +5,7 @@ import cv2
 import time
 
 # Note: OpenCV uses BGR color space rather than RGB
-
+# 
 
 def threshold():
     # Load image

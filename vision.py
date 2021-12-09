@@ -9,7 +9,7 @@ Motor1_neg = 20
 Motor2_pos = 26
 Motor2_neg = 19
 # Note: OpenCV uses BGR color space rather than RGB
-# 
+#
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(Motor1_pos, GPIO.OUT)
 GPIO.setup(Motor1_neg, GPIO.OUT)
@@ -19,11 +19,13 @@ GPIO.setup(Motor2_neg, GPIO.OUT)
 # GPIO.output(Motor1_pos, True)
 # GPIO.output(Motor1_neg, False)
 
+
 def forward():
     GPIO.output(Motor1_pos, True)
     GPIO.output(Motor1_neg, False)
     GPIO.output(Motor2_pos, True)
     GPIO.output(Motor2_neg, False)
+
 
 def spin():
     GPIO.output(Motor1_pos, False)
@@ -31,12 +33,14 @@ def spin():
     GPIO.output(Motor2_pos, True)
     GPIO.output(Motor2_neg, False)
 
+
 def stop():
     GPIO.output(Motor1_pos, False)
     GPIO.output(Motor1_neg, False)
     GPIO.output(Motor2_pos, False)
     GPIO.output(Motor2_neg, False)
-stop()
+
+
 def threshold():
     # Load image
     cap = cv2.VideoCapture(0)
@@ -48,7 +52,7 @@ def threshold():
     cap.set(cv2.CAP_PROP_FPS, 30)
 
     cv2.namedWindow("Threshold", 0)
- 
+
     print("Press Q to quit")
 
     lower_limit_threshold = np.array([5, 100, 120])
@@ -56,7 +60,7 @@ def threshold():
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
-        
+
         if frame is not None:
             print("frame")
         else:
@@ -71,9 +75,7 @@ def threshold():
         frame = frame & mask_rgb
 
         # find contours
-        (cnts, __) = cv2.findContours(
-            mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
-        )
+        (cnts, __) = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
         # draw one box around the biggest contour
         if len(cnts) > 0:
@@ -94,14 +96,19 @@ def threshold():
                 2,
             )
         cv2.imshow("Threshold", frame)
+        # If contours are found, move the motors
+        if len(cnts) > 0:
+            forward()
+        else:
+            spin()
 
         if cv2.waitKey(1) & 0xFF == ord("q"):
             cv2.DestroyWindow("Threshold")
+            stop()
             break
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 
 threshold()

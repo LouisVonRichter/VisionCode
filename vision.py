@@ -1,12 +1,42 @@
 import numpy as np
 import cv2
 
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 
+Motor1_pos = 21
+Motor1_neg = 20
+Motor2_pos = 26
+Motor2_neg = 19
 # Note: OpenCV uses BGR color space rather than RGB
 # 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(Motor1_pos, GPIO.OUT)
+GPIO.setup(Motor1_neg, GPIO.OUT)
+GPIO.setup(Motor2_pos, GPIO.OUT)
+GPIO.setup(Motor2_neg, GPIO.OUT)
 
+# GPIO.output(Motor1_pos, True)
+# GPIO.output(Motor1_neg, False)
+
+def forward():
+    GPIO.output(Motor1_pos, True)
+    GPIO.output(Motor1_neg, False)
+    GPIO.output(Motor2_pos, True)
+    GPIO.output(Motor2_neg, False)
+
+def spin():
+    GPIO.output(Motor1_pos, False)
+    GPIO.output(Motor1_neg, True)
+    GPIO.output(Motor2_pos, True)
+    GPIO.output(Motor2_neg, False)
+
+def stop():
+    GPIO.output(Motor1_pos, False)
+    GPIO.output(Motor1_neg, False)
+    GPIO.output(Motor2_pos, False)
+    GPIO.output(Motor2_neg, False)
+stop()
 def threshold():
     # Load image
     cap = cv2.VideoCapture(0)
@@ -18,7 +48,7 @@ def threshold():
     cap.set(cv2.CAP_PROP_FPS, 30)
 
     cv2.namedWindow("Threshold", 0)
-
+ 
     print("Press Q to quit")
 
     lower_limit_threshold = np.array([5, 100, 120])
@@ -26,7 +56,7 @@ def threshold():
     while True:
         # Capture frame-by-frame
         ret, frame = cap.read()
-
+        
         if frame is not None:
             print("frame")
         else:
@@ -41,7 +71,7 @@ def threshold():
         frame = frame & mask_rgb
 
         # find contours
-        (__, cnts, __) = cv2.findContours(
+        (cnts, __) = cv2.findContours(
             mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE
         )
 
@@ -73,30 +103,5 @@ def threshold():
     cv2.destroyAllWindows()
 
 
+
 threshold()
-
-# from picamera import PiCamera
-# from picamera.array import PiRGBArray
-# import time
-# import cv2
-
-# # initialize the camera and grab a reference to the raw camera capture
-# camera = PiCamera()
-# rawCapture = PiRGBArray(camera)
-
-# # allow the camera to warmup
-# time.sleep(2)
-
-# # grab an image from the camera
-# while(True):
-#     rawCapture = PiRGBArray(camera)
-
-#     camera.capture(rawCapture, format="bgr")
-#     image = rawCapture.array
-
-#     # Convert to a normal RGB space
-#     im = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-#     # display the image on screen and wait for a keypress
-#     cv2.imshow("Image", im)
-#     cv2.waitKey(0)
